@@ -12,6 +12,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@ant-design/react-native": "^3.3.0",
     "@expo/vector-icons": "~10.0.6",
     "@react-native-community/masked-view": "0.1.6",
     "@react-navigation/bottom-tabs": "^5.0.0",
@@ -29,6 +30,7 @@
     "react-native-gesture-handler": "~1.6.0",
     "react-native-safe-area-context": "0.7.3",
     "react-native-screens": "~2.2.0",
+    "react-native-super-grid": "^3.2.0",
     "react-native-web": "~0.11.7"
   },
   "devDependencies": {
