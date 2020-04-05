@@ -1,0 +1,16 @@
+{
+  "movies": [
+    {
+      "title": "Pulp Fiction",
+      "thumbnail": "https://imgur.com/Ropepqn.png"
+    },
+    {
+      "title": "Avengers: Endgame",
+      "thumbnail": "https://imgur.com/gSZ8Fd9.png"
+    },
+    {
+      "title": "Interstellar",
+      "thumbnail": "https://imgur.com/Y5iXYbI.png"
+    }
+  ]
+}
