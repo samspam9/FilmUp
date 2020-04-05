@@ -7,8 +7,13 @@ import { MonoText } from "../components/StyledText";
 import { TouchableHighlight } from "react-native";
 
 class HomeScreen extends React.Component {
+  constructor(props) {
+    super(props);
+
+    console.log(this.props);
+  }
   goToMovie() {
-    console.log("going to movie page");
+    this.props.navigation.navigate("MovieDetails");
   }
 
   render() {
@@ -18,7 +23,7 @@ class HomeScreen extends React.Component {
           itemDimension={130}
           items={dataSource.movies}
           renderItem={({ item }) => (
-            <TouchableHighlight onPress={this.goToMovie}>
+            <TouchableHighlight onPress={this.goToMovie.bind(this)}>
               <View style={styles.movieContainer}>
                 <Image
                   style={styles.imagePreview}
