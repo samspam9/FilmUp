@@ -1,34 +1,47 @@
-import * as React from 'react';
-import { Image, StyleSheet, View, Button, ActivityIndicator, Alert, TextInput } from 'react-native';
-import dataSource from '../sampleData.json';
-import { FlatGrid } from 'react-native-super-grid';
+import * as React from "react";
+import {
+  Image,
+  StyleSheet,
+  View,
+  Button,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+} from "react-native";
+import { FlatGrid } from "react-native-super-grid";
 
-import { MonoText } from '../components/StyledText';
-import { TouchableHighlight } from 'react-native';
-import FilmUpAPI from '../lib/FilmUpAPI';
+import { MonoText } from "../components/StyledText";
+import { TouchableHighlight } from "react-native";
+import FilmUpAPI from "../lib/FilmUpAPI";
 
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
 
     this.goToMovie = this.goToMovie.bind(this);
-    this.state = { isReady: false, movies: [], query: '' };
+    this.state = { isReady: false, movies: [], query: "" };
   }
 
   componentDidMount() {
-    FilmUpAPI.fetchMovies('a').then((movies) => this.setState({ movies, isReady: 'true' }));
+    FilmUpAPI.fetchMovies("a").then((movies) =>
+      this.setState({ movies, isReady: "true" })
+    );
   }
 
   queryMovies(query) {
-    clearTimeout(this.query);
-    this.query = setTimeout(() => {
-      FilmUpAPI.fetchMovies(query).then((movies) => this.setState({ movies }));
-    }, 250);
+    if (query !== "") {
+      clearTimeout(this.query);
+      this.query = setTimeout(() => {
+        FilmUpAPI.fetchMovies(query).then((movies) =>
+          this.setState({ movies })
+        );
+      }, 250);
+    }
   }
 
   goToMovie(movieID) {
-    console.log('goToMovie', movieID);
-    this.props.navigation.navigate('MovieDetails', { movieID });
+    console.log("goToMovie", movieID);
+    this.props.navigation.navigate("MovieDetails", { movieID });
   }
 
   render() {
@@ -52,6 +65,7 @@ class HomeScreen extends React.Component {
         <FlatGrid
           itemDimension={130}
           items={movies}
+          style={styles.movieGrid}
           renderItem={({ item }) => (
             <TouchableHighlight
               onPress={() => {
@@ -59,7 +73,10 @@ class HomeScreen extends React.Component {
               }}
             >
               <View style={styles.movieContainer}>
-                <Image style={styles.imagePreview} source={{ uri: item.poster }} />
+                <Image
+                  style={styles.imagePreview}
+                  source={{ uri: item.poster }}
+                />
                 <View style={styles.textContainer}>
                   <MonoText style={styles.orangeText}>{item.title}</MonoText>
                 </View>
@@ -81,18 +98,21 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#171717',
+    backgroundColor: "#171717",
   },
   search: {
-    backgroundColor: 'black',
+    backgroundColor: "black",
     height: 80,
     fontSize: 26,
     letterSpacing: 2,
-    color: 'white',
+    color: "white",
+  },
+  movieGrid: {
+    marginLeft: 25,
   },
   center: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   contentContainer: {
     paddingTop: 30,
@@ -102,13 +122,13 @@ const styles = StyleSheet.create({
     height: 250,
   },
   orangeText: {
-    color: 'orange',
-    textAlign: 'center',
+    color: "orange",
+    textAlign: "center",
   },
   movieContainer: {
     width: 150,
   },
   textContainer: {
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
   },
 });

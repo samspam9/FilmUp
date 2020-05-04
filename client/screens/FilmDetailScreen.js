@@ -1,75 +1,14 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as WebBrowser from 'expo-web-browser';
-import * as React from 'react';
-import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import Container from 'react-native-container';
-import FilmUpAPI from '../lib/FilmUpAPI';
-import { MaterialIcons } from '@expo/vector-icons';
-import { AsyncStorage } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import * as WebBrowser from "expo-web-browser";
+import * as React from "react";
+import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
+import { RectButton, ScrollView } from "react-native-gesture-handler";
+import Container from "react-native-container";
+import FilmUpAPI from "../lib/FilmUpAPI";
+import { MaterialIcons } from "@expo/vector-icons";
+import { AsyncStorage } from "react-native";
 
-/*
-Object {
-  "adult": false,
-  "backdrop_path": "/puw9y3jcL76FgHRkMeGkMQ9APao.jpg",
-  "belongs_to_collection": null,
-  "budget": 0,
-  "genres": Array [
-    Object {
-      "id": 18,
-      "name": "Drama",
-    },
-  ],
-  "homepage": "https://www.netflix.com/title/80226923",
-  "id": 530956,
-  "imdb_id": "tt3993886",
-  "original_language": "en",
-  "original_title": "All Day and a Night",
-  "overview": "While serving life in prison, a young man looks back at the people, the circumstances and the system that set him on the path toward his crime.",
-  "popularity": 92.473,
-  "poster_path": "/8xiV8j18GhWnnrfMGaDR0E5oOif.jpg",
-  "production_companies": Array [
-    Object {
-      "id": 5420,
-      "logo_path": "/dlW4Kh5dNieKNURnymsu57y6fMf.png",
-      "name": "Color Force",
-      "origin_country": "US",
-    },
-    Object {
-      "id": 88928,
-      "logo_path": null,
-      "name": "Mighty Engine",
-      "origin_country": "US",
-    },
-  ],
-  "production_countries": Array [
-    Object {
-      "iso_3166_1": "US",
-      "name": "United States of America",
-    },
-  ],
-  "release_date": "2020-05-01",
-  "revenue": 0,
-  "runtime": 121,
-  "spoken_languages": Array [
-    Object {
-      "iso_639_1": "en",
-      "name": "English",
-    },
-    Object {
-      "iso_639_1": "es",
-      "name": "Español",
-    },
-  ],
-  "status": "Released",
-  "tagline": "Born. Gangster. Repeat.",
-  "title": "All Day and a Night",
-  "video": false,
-  "vote_average": 6.1,
-  "vote_count": 20,
-}
-*/
-import _ from 'lodash';
+import _ from "lodash";
 class FilmDetailScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -88,22 +27,27 @@ class FilmDetailScreen extends React.Component {
       const fav = JSON.parse(JSON.parse(res));
       console.log(fav);
       this.setState({
-        isFavorite: fav && _.find(fav, (i) => i.id === this.state.movieID) !== undefined,
+        isFavorite:
+          fav && _.find(fav, (i) => i.id === this.state.movieID) !== undefined,
       });
     });
     FilmUpAPI.fetchMovieInfo(this.state.movieID).then((info) =>
-      this.setState({ isReady: true, info }),
+      this.setState({ isReady: true, info })
     );
   }
 
   onFavoritePress() {
     const { info } = this.state;
-    const movieInfo = { id: info.id, title: info.title, poster: info.poster_path };
-    AsyncStorage.getItem('favorites').then((res) => {
+    const movieInfo = {
+      id: info.id,
+      title: info.title,
+      poster: info.poster_path,
+    };
+    AsyncStorage.getItem("favorites").then((res) => {
       let favorites = JSON.parse(JSON.parse(res)) || [];
       console.log(this.state.isFavorite);
       if (this.state.isFavorite && favorites) {
-        console.log('here');
+        console.log("here");
         _.remove(favorites, (f) => f.id === movieInfo.id);
       } else {
         favorites.push(movieInfo);
@@ -131,7 +75,7 @@ class FilmDetailScreen extends React.Component {
               style={styles.coverImage}
               resizeMode="cover"
               source={{
-                uri: info.poster_path,
+                uri: info.backdrop_path,
               }}
             />
             <Container absoluteFill style={styles.darken} />
@@ -143,9 +87,9 @@ class FilmDetailScreen extends React.Component {
             </Container>
             <Container row center="vertical">
               <Container>
-                <Text style={styles.info}>{`${info.release_date.split('-')[0]}  |  ${
-                  info.runtime
-                } minutes`}</Text>
+                <Text style={styles.info}>{`${
+                  info.release_date.split("-")[0]
+                }  |  ${info.runtime} minutes`}</Text>
               </Container>
               <Container align="right">
                 {/* <MaterialIcons.Button
@@ -160,7 +104,9 @@ class FilmDetailScreen extends React.Component {
               </Container>
             </Container>
             <Container center="vertical">
-              <Text style={styles.genre}>{info.genres.map((g) => g.name).join(', ')}</Text>
+              <Text style={styles.genre}>
+                {info.genres.map((g) => g.name).join(", ")}
+              </Text>
             </Container>
           </Container>
         </Container>
@@ -187,7 +133,7 @@ class FilmDetailScreen extends React.Component {
             </Container>
             <Container marginVertical={10}>
               <Text style={styles.info}>
-                Languages: {info.spoken_languages.map((l) => l.name).join(', ')}
+                Languages: {info.spoken_languages.map((l) => l.name).join(", ")}
               </Text>
             </Container>
             <Container marginVertical={10}>
@@ -197,17 +143,18 @@ class FilmDetailScreen extends React.Component {
             </Container>
             <Container marginVertical={10}>
               <Text style={styles.info}>
-                Filming Locations: {info.production_countries.map((l) => l.name).join(', ')}
+                Filming Locations:{" "}
+                {info.production_countries.map((l) => l.name).join(", ")}
               </Text>
             </Container>
             <Container marginVertical={10}>
               <Text style={styles.info}>
-                Budget: {info.budget === 0 ? 'Unknown' : '$' + info.budget}
+                Budget: {info.budget === 0 ? "Unknown" : "$" + info.budget}
               </Text>
             </Container>
             <Container marginVertical={10}>
               <Text style={styles.info}>
-                Revenue: {info.revenue === 0 ? 'Unknown' : '$' + info.revenue}
+                Revenue: {info.revenue === 0 ? "Unknown" : "$" + info.revenue}
               </Text>
             </Container>
             <Container marginVertical={10}>
@@ -215,7 +162,8 @@ class FilmDetailScreen extends React.Component {
             </Container>
             <Container marginVertical={10}>
               <Text style={styles.info}>
-                Production Co: {info.production_companies.map((p) => p.name).join(', ')}
+                Production Co:{" "}
+                {info.production_companies.map((p) => p.name).join(", ")}
               </Text>
             </Container>
             <Container marginVertical={10}>
@@ -236,47 +184,48 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   center: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   contentContainer: {
     paddingTop: 15,
   },
   body: {
-    backgroundColor: 'black',
+    backgroundColor: "black",
     paddingVertical: 20,
+    paddingLeft: 10,
   },
   cover: {
-    backgroundColor: 'steelblue',
+    backgroundColor: "steelblue",
   },
   coverImage: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   title: {
     fontSize: 28,
     letterSpacing: 1,
     // fontWeight: '900',
-    fontFamily: 'space-mono',
+    fontFamily: "space-mono",
     // textTransform: 'uppercase',
-    color: 'white',
+    color: "white",
     opacity: 0.9,
   },
   darken: {
-    backgroundColor: 'black',
+    backgroundColor: "black",
     opacity: 0.5,
   },
   info: {
-    color: 'white',
+    color: "white",
     opacity: 0.9,
-    fontFamily: 'space-mono',
+    fontFamily: "space-mono",
   },
   genre: {
-    color: 'white',
+    color: "white",
     opacity: 0.9,
-    color: 'orange',
-    fontFamily: 'space-mono',
+    color: "orange",
+    fontFamily: "space-mono",
   },
 });
 
