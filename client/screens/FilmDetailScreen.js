@@ -1,109 +1,251 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import Container from 'react-native-container';
+import FilmUpAPI from '../lib/FilmUpAPI';
+import { MaterialIcons } from '@expo/vector-icons';
+import { AsyncStorage } from 'react-native';
 
-export default function FilmDetailScreen() {
-  return (
-    <Container style={styles.container}>
-      <Container padding={10}>
-        <Container absoluteFill>
-          <Image
-            style={styles.coverImage}
-            resizeMode="cover"
-            source={{
-              uri:
-                'https://cdn1.thr.com/sites/default/files/imagecache/landscape_928x523/2014/09/interstellar_poster_0.jpg',
-            }}
-          />
-          <Container absoluteFill style={styles.darken} />
+/*
+Object {
+  "adult": false,
+  "backdrop_path": "/puw9y3jcL76FgHRkMeGkMQ9APao.jpg",
+  "belongs_to_collection": null,
+  "budget": 0,
+  "genres": Array [
+    Object {
+      "id": 18,
+      "name": "Drama",
+    },
+  ],
+  "homepage": "https://www.netflix.com/title/80226923",
+  "id": 530956,
+  "imdb_id": "tt3993886",
+  "original_language": "en",
+  "original_title": "All Day and a Night",
+  "overview": "While serving life in prison, a young man looks back at the people, the circumstances and the system that set him on the path toward his crime.",
+  "popularity": 92.473,
+  "poster_path": "/8xiV8j18GhWnnrfMGaDR0E5oOif.jpg",
+  "production_companies": Array [
+    Object {
+      "id": 5420,
+      "logo_path": "/dlW4Kh5dNieKNURnymsu57y6fMf.png",
+      "name": "Color Force",
+      "origin_country": "US",
+    },
+    Object {
+      "id": 88928,
+      "logo_path": null,
+      "name": "Mighty Engine",
+      "origin_country": "US",
+    },
+  ],
+  "production_countries": Array [
+    Object {
+      "iso_3166_1": "US",
+      "name": "United States of America",
+    },
+  ],
+  "release_date": "2020-05-01",
+  "revenue": 0,
+  "runtime": 121,
+  "spoken_languages": Array [
+    Object {
+      "iso_639_1": "en",
+      "name": "English",
+    },
+    Object {
+      "iso_639_1": "es",
+      "name": "Español",
+    },
+  ],
+  "status": "Released",
+  "tagline": "Born. Gangster. Repeat.",
+  "title": "All Day and a Night",
+  "video": false,
+  "vote_average": 6.1,
+  "vote_count": 20,
+}
+*/
+import _ from 'lodash';
+class FilmDetailScreen extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isReady: false,
+      isFavorite: false,
+      info: {},
+      movieID: props.route.params.movieID,
+    };
+    this.onFavoritePress = this.onFavoritePress.bind(this);
+  }
+
+  componentDidMount() {
+    AsyncStorage.getItem(`favorites`).then((res) => {
+      const fav = JSON.parse(JSON.parse(res));
+      console.log(fav);
+      this.setState({
+        isFavorite: fav && _.find(fav, (i) => i.id === this.state.movieID) !== undefined,
+      });
+    });
+    FilmUpAPI.fetchMovieInfo(this.state.movieID).then((info) =>
+      this.setState({ isReady: true, info }),
+    );
+  }
+
+  onFavoritePress() {
+    const { info } = this.state;
+    const movieInfo = { id: info.id, title: info.title, poster: info.poster_path };
+    AsyncStorage.getItem('favorites').then((res) => {
+      let favorites = JSON.parse(JSON.parse(res)) || [];
+      console.log(this.state.isFavorite);
+      if (this.state.isFavorite && favorites) {
+        console.log('here');
+        _.remove(favorites, (f) => f.id === movieInfo.id);
+      } else {
+        favorites.push(movieInfo);
+      }
+      console.log(favorites);
+      AsyncStorage.setItem(`favorites`, JSON.stringify(favorites));
+      this.setState({ isFavorite: !this.state.isFavorite });
+    });
+  }
+
+  render() {
+    const { isReady, info, isFavorite } = this.state;
+    if (!isReady) {
+      return (
+        <View style={[styles.container, styles.center]}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+    return (
+      <Container style={styles.container}>
+        <Container padding={10}>
+          <Container absoluteFill>
+            <Image
+              style={styles.coverImage}
+              resizeMode="cover"
+              source={{
+                uri: info.poster_path,
+              }}
+            />
+            <Container absoluteFill style={styles.darken} />
+          </Container>
+          <Container />
+          <Container size={2}>
+            <Container size={2} center="vertical">
+              <Text style={styles.title}>{info.title}</Text>
+            </Container>
+            <Container row center="vertical">
+              <Container>
+                <Text style={styles.info}>{`${info.release_date.split('-')[0]}  |  ${
+                  info.runtime
+                } minutes`}</Text>
+              </Container>
+              <Container align="right">
+                {/* <MaterialIcons.Button
+                  activeOpacity={1}
+                  underlayColor="transparent"
+                  size={24}
+                  onPress={this.onFavoritePress}
+                  name={isFavorite ? 'favorite' : 'favorite-border'}
+                  backgroundColor="transparent"
+                  color="red"
+                ></MaterialIcons.Button> */}
+              </Container>
+            </Container>
+            <Container center="vertical">
+              <Text style={styles.genre}>{info.genres.map((g) => g.name).join(', ')}</Text>
+            </Container>
+          </Container>
         </Container>
-        <Container />
-        <Container size={2}>
-          <Container size={2} center="vertical">
-            <Text style={styles.title}>Interstellar</Text>
-          </Container>
-          <Container center="vertical">
-            <Text style={styles.info}>2014 |  2h 49min</Text>
-          </Container>
-          <Container center="vertical">
-            <Text style={styles.genre}>Aventure, Drama, Sci-Fi</Text>
-          </Container>
+        <Container size={2} style={styles.body}>
+          <ScrollView>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>{info.overview}</Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.genre}>
+                Rating: {`${info.vote_average} (${info.vote_count})`}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>Status: {info.status}</Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Stars: Matthew McConaughey, Anne Hathaway, Jessica Chastain
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>Country: USA, UK, Canada</Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Languages: {info.spoken_languages.map((l) => l.name).join(', ')}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Release Date: {new Date(info.release_date).toLocaleDateString()}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Filming Locations: {info.production_countries.map((l) => l.name).join(', ')}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Budget: {info.budget === 0 ? 'Unknown' : '$' + info.budget}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Revenue: {info.revenue === 0 ? 'Unknown' : '$' + info.revenue}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>Popularity: {info.popularity}</Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>
+                Production Co: {info.production_companies.map((p) => p.name).join(', ')}
+              </Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>Runtime: {info.runtime} min</Text>
+            </Container>
+            <Container marginVertical={10}>
+              <Text style={styles.info}>Tagline: {info.tagline}</Text>
+            </Container>
+          </ScrollView>
         </Container>
       </Container>
-      <Container size={2} style={styles.body}>
-        <ScrollView>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>
-              A team of explorers travel through a wormhole in space in an
-              attempt to ensure humanity's survival.
-            </Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Director: Christopher Nolan</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>
-              Writers: Jonathan Nolan, Christopher Nolan
-            </Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>
-              Stars: Matthew McConaughey, Anne Hathaway, Jessica Chastain
-            </Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Country: USA, UK, Canada</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Language: English</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Release Date: 7 November 2014</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>
-              Filming Locations: Okotoks, Alberta, Canada
-            </Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Budget:$165,000,000 (estimated)</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Cumulative Worldwide Gross: $677,471,339</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Production Co: Paramount Pictures, Warner Bros., Legendary Entertainment</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Runtime: 169 min</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Sound Mix: Datasat | Dolby Digital | IMAX 6-Track | Dolby Surround 7.1 | Sonics-DDP (IMAX version)</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Color: Color (FotoKem)</Text>
-          </Container>
-          <Container marginVertical={10}>
-            <Text style={styles.info}>Aspect Ratio: 2.39 : 1</Text>
-          </Container>
-        </ScrollView>
-      </Container>
-    </Container>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   contentContainer: {
     paddingTop: 15,
   },
   body: {
     backgroundColor: 'black',
+    paddingVertical: 20,
   },
   cover: {
     backgroundColor: 'steelblue',
@@ -137,3 +279,5 @@ const styles = StyleSheet.create({
     fontFamily: 'space-mono',
   },
 });
+
+export default FilmDetailScreen;
