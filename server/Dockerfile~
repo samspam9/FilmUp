@@ -1,9 +1,0 @@
-FROM node:10.11.0
-
-COPY . .
-
-RUN npm install
-
-EXPOSE 5000
-
-CMD node src/index.j

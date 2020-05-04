@@ -24,6 +24,9 @@ async function getDetails(ctx) {
     `https://api.themoviedb.org/3/movie/${id}?api_key=${API_KEY}`
   );
 
+  results.data.poster_path = `https://image.tmdb.org/t/p/original${results.data.poster_path}`;
+  results.data.backdrop_path = `https://image.tmdb.org/t/p/original${results.data.backdrop_path}`;
+
   ctx.ok(results.data);
 }
 
